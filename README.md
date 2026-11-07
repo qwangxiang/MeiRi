@@ -70,16 +70,38 @@ Windows 10 / 11 · C# 12 · .NET 8 · WPF · 零第三方依赖
 
 ## 快速开始
 
-需要 [.NET 8 桌面运行时](https://dotnet.microsoft.com/download/dotnet/8.0)（Windows 10 1809+ / Windows 11）。
+**需要**：Windows 10 1809+ / Windows 11，以及 [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+（只想运行、不想编译的话装「桌面运行时」即可，见方式三）。
+
+### 方式一：拉源码，一条命令跑起来
 
 ```powershell
 git clone https://github.com/qwangxiang/MeiRi.git
 cd MeiRi
+dotnet run
+```
+
+没有装 Git？在仓库页面点 **Code → Download ZIP**，解压后在解压出来的 `MeiRi` 目录里执行 `dotnet run`。
+
+### 方式二：打包成一个文件夹，以后双击运行
+
+```powershell
 dotnet publish -c Release -r win-x64 --self-contained false -p:PublishReadyToRun=true -o app
 .\app\MeiRi.exe
 ```
 
-`MeiRi.exe` 已经在运行时再运行一次，会直接新建一张便签。退出：日历右上角 `⋯` → 退出。
+生成的 `app\` 目录可以整个复制到任何有 .NET 8 桌面运行时的电脑上，双击 `MeiRi.exe` 就用。
+
+### 方式三：打包成免安装、免运行时的单目录
+
+```powershell
+dotnet publish -c Release -r win-x64 --self-contained true -o app-standalone
+```
+
+`app-standalone\MeiRi.exe` 自带运行时（约 150 MB），复制到别的 Windows 电脑上也能直接双击。
+
+> 第一次运行若出现 SmartScreen 提示，点「更多信息 → 仍要运行」即可。
+> 程序默认开机自启，可在日历 `⋯` 菜单里关掉；数据都在程序目录的 `Data\` 里，整个文件夹删掉就是卸载。
 
 ## 常用操作
 
@@ -103,14 +125,7 @@ dotnet publish -c Release -r win-x64 --self-contained false -p:PublishReadyToRun
   `settings.json`（设置）、`meiri.log`（运行日志）。
 - **不联网、无遥测、无账号**。删掉 `Data\` 就是清空重来。
 
-## 从源码构建
-
-```powershell
-dotnet build -c Release
-dotnet publish -c Release -r win-x64 --self-contained false -p:PublishReadyToRun=true -o app
-```
-
-项目结构：
+## 项目结构
 
 ```
 Core\          剪贴板、窗口效果、菜单浮窗、开发自检
