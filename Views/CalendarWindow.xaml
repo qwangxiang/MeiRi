@@ -1,0 +1,163 @@
+<Window x:Class="MeiRi.Views.CalendarWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Width="384" Height="402"
+        WindowStyle="None" AllowsTransparency="True" Background="{x:Null}"
+        ResizeMode="NoResize" ShowInTaskbar="False" Topmost="False" ShowActivated="False"
+        WindowStartupLocation="Manual" Left="0" Top="0"
+        FontFamily="{StaticResource AppFont}" FontSize="12"
+        TextOptions.TextFormattingMode="Display"
+        UseLayoutRounding="True" SnapsToDevicePixels="True">
+
+    <Grid Margin="18">
+        <ContentControl Style="{StaticResource CardShadowRing}" />
+        <Border x:Name="Card" CornerRadius="18" Background="{StaticResource GlassBrush}"
+                BorderBrush="{StaticResource GlassBorderBrush}" BorderThickness="1"
+                MouseRightButtonUp="Card_MouseRightButtonUp">
+            <Grid Margin="14,12,14,12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- header -->
+                <Grid x:Name="Header" Background="Transparent" Margin="2,0,0,0"
+                      MouseLeftButtonDown="Header_MouseLeftButtonDown"
+                      MouseMove="Header_MouseMove"
+                      MouseLeftButtonUp="Header_MouseLeftButtonUp">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding MonthTitle}" FontSize="16.5" FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                        <Button Style="{StaticResource TextButton}" Content="回到今天"
+                                Foreground="{StaticResource AccentBrush}" FontSize="10.5"
+                                Margin="8,1,0,0" VerticalAlignment="Center"
+                                Click="GoToday_Click"
+                                Visibility="{Binding IsNotViewingThisMonth, Converter={StaticResource BoolVis}}" />
+                        <Button x:Name="BacklogButton" Style="{StaticResource PillButton}" Margin="8,0,0,0"
+                                VerticalAlignment="Center" Click="Backlog_Click"
+                                ToolTip="{Binding BacklogHint}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="待定" FontSize="10.5" VerticalAlignment="Center" />
+                                <Ellipse Width="5" Height="5" Margin="4,0,0,0" VerticalAlignment="Center"
+                                         Fill="{StaticResource DangerBrush}"
+                                         Visibility="{Binding HasBacklogLeft, Converter={StaticResource BoolVis}}" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <Button Style="{StaticResource IconButton}" Content="&#xE76B;" ToolTip="上个月"
+                                Click="Prev_Click" FontSize="10" Margin="0,0,2,0" />
+                        <Button Style="{StaticResource IconButton}" Content="&#xE76C;" ToolTip="下个月"
+                                Click="Next_Click" FontSize="10" />
+                        <Button x:Name="MenuButton" Style="{StaticResource IconButton}" Content="&#xE712;"
+                                ToolTip="更多" FontSize="13" Margin="6,0,0,0" Click="Menu_Click" />
+                    </StackPanel>
+                </Grid>
+
+                <!-- week days -->
+                <Grid Grid.Row="1" Margin="0,10,0,4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="一" />
+                    <TextBlock Grid.Column="1" Text="二" />
+                    <TextBlock Grid.Column="2" Text="三" />
+                    <TextBlock Grid.Column="3" Text="四" />
+                    <TextBlock Grid.Column="4" Text="五" />
+                    <TextBlock Grid.Column="5" Text="六" />
+                    <TextBlock Grid.Column="6" Text="日" />
+                    <Grid.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center" />
+                            <Setter Property="Foreground" Value="#9EA4B6" />
+                            <Setter Property="FontSize" Value="10.5" />
+                        </Style>
+                    </Grid.Resources>
+                </Grid>
+
+                <!-- days -->
+                <ItemsControl Grid.Row="2" x:Name="DaysHost" ItemsSource="{Binding Cells}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="7" Rows="6" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border x:Name="Cell" Background="Transparent" CornerRadius="11" Margin="1"
+                                    Tag="{Binding}" Cursor="Hand"
+                                    MouseLeftButtonUp="Cell_MouseLeftButtonUp"
+                                    MouseEnter="Cell_MouseEnter"
+                                    MouseLeave="Cell_MouseLeave">
+                                <Grid>
+                                    <Border x:Name="LevelBg" CornerRadius="10" Margin="2"
+                                            Background="{Binding Level, Converter={StaticResource LevelBrush}}" />
+                                    <Border x:Name="HoverBg" CornerRadius="10" Margin="2"
+                                            Background="#A6EFF2FA" Opacity="0" />
+                                    <Border x:Name="Ring" CornerRadius="11" BorderThickness="1.5"
+                                            BorderBrush="{StaticResource AccentBrush}" Visibility="Collapsed" />
+                                    <Ellipse x:Name="TodayBg" Width="29" Height="29" Visibility="Collapsed"
+                                             Fill="{StaticResource AccentBrush}" />
+                                    <TextBlock x:Name="Num" Text="{Binding Day}" FontSize="13"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               Foreground="{Binding Level, Converter={StaticResource LevelInk}}" />
+                                    <Ellipse x:Name="Dot" Width="5" Height="5" Visibility="Collapsed"
+                                             HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6,6,0,0" />
+                                </Grid>
+                            </Border>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding IsCurrentMonth}" Value="False">
+                                    <Setter TargetName="LevelBg" Property="Opacity" Value="0.5" />
+                                </DataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsCurrentMonth}" Value="False" />
+                                        <Condition Binding="{Binding Level}" Value="0" />
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter TargetName="Num" Property="Foreground" Value="#C3C7D4" />
+                                </MultiDataTrigger>
+                                <DataTrigger Binding="{Binding IsToday}" Value="True">
+                                    <Setter TargetName="TodayBg" Property="Visibility" Value="Visible" />
+                                    <Setter TargetName="Num" Property="Foreground" Value="White" />
+                                    <Setter TargetName="Num" Property="FontWeight" Value="SemiBold" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Dot}" Value="Red">
+                                    <Setter TargetName="Dot" Property="Fill" Value="{StaticResource DangerBrush}" />
+                                    <Setter TargetName="Dot" Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Dot}" Value="Green">
+                                    <Setter TargetName="Dot" Property="Fill" Value="{StaticResource SuccessBrush}" />
+                                    <Setter TargetName="Dot" Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Level}" Value="4">
+                                    <Setter TargetName="Num" Property="Foreground" Value="White" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsDropTarget}" Value="True">
+                                    <Setter TargetName="HoverBg" Property="Opacity" Value="0" />
+                                    <Setter TargetName="Ring" Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                                <Trigger SourceName="Cell" Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="HoverBg" Property="Opacity" Value="1" />
+                                </Trigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- footer: finished tasks this month / in the last year -->
+                <TextBlock x:Name="StatsText" Grid.Row="3" Text="{Binding StatsLine}"
+                           FontSize="9.5" Margin="2,5,2,0" HorizontalAlignment="Center"
+                           Foreground="{StaticResource TextTertiaryBrush}" />
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

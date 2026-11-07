@@ -1,0 +1,19 @@
+# build output
+bin/
+obj/
+app/
+publish/
+
+# runtime data: your own schedule, settings and log never belong in the repo
+Data/
+
+# IDE
+.vs/
+.idea/
+*.user
+*.suo
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store
